@@ -1,10 +1,38 @@
 ---
-title: "ps05_assignment"
+author: "Graydon Perry"
+title: "ps05-rmarkdown-plot"
 output: html_document
-date: "2023-02-15"
+date: "2023-02-19"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r libraries, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+## Load and Check Data
+
+### 1. 
+
+I Created the R-Markdown Document
+
+### 2. 
+
+```{r load_data, message=FALSE}
+setwd("/Users/graydonperry/Desktop/info201/ps05-rmarkdown-plot")
+gapminder <- read_delim("gapminder.csv.bz2")
+```
+
+### 3.
+
+```{r sample_data, echo=FALSE}
+sample_n(gapminder, 5)
+```
+
+Yes, this data looks correct to me.
+
+## Descriptive Statistics
