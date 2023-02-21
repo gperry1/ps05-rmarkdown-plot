@@ -16,23 +16,216 @@ library(ggplot2)
 
 ## Load and Check Data
 
-### 1. 
+1.) For solving the problems, and answering the questions, create a new rmarkdown document with an appropriate title.
 
-I Created the R-Markdown Document
+  I Created the R-Markdown Document.
 
-### 2. 
+2.) Load data. How many rows/columns do we have?
 
-```{r load_data, message=FALSE}
+```{r load_data, echo=FALSE, results='hide'}
 setwd("/Users/graydonperry/Desktop/info201/ps05-rmarkdown-plot")
 gapminder <- read_delim("gapminder.csv.bz2")
+
+nrow(gapminder)
+ncol(gapminder)
 ```
 
-### 3.
+  The _gapminder_ dataset has 13055 rows and 25 columns
+
+3.) Print a small sample of data. Does it look OK?
 
 ```{r sample_data, echo=FALSE}
 sample_n(gapminder, 5)
 ```
 
-Yes, this data looks correct to me.
+  Yes, this data looks correct to me.
+
 
 ## Descriptive Statistics
+
+1.) How many countries are there in the dataset? Analyze all three: iso3, iso2 and name.
+
+```{r num_countries, echo=FALSE, results='hide'}
+gapminder %>%
+  summarize(n = n_distinct(iso3))
+
+gapminder %>%
+  summarize(n = n_distinct(iso2))
+
+gapminder %>%
+  summarize(n = n_distinct(name))
+```
+
+The **iso3** variable shows that there are 253 countries, the **iso2** variable shows that there are 249 countries, and the **name** variables shows that there are 250 countries. 
+
+2a.)
+
+```{r iso2, echo=FALSE}
+gapminder %>%
+  group_by(iso2) %>%
+  summarize(n = n_distinct(name)) %>%
+  arrange(desc(n))
+
+gapminder %>%
+  filter(is.na(iso2)) %>%
+  summarise(n = unique(name))
+```
+
+  Based on my analysis, the **NA** variable is the only code that corresponds with multiple names.
+  Those two names are **NA** and **Namibia**.
+
+2b.)
+
+```{r iso3, echo=FALSE}
+gapminder %>%
+  group_by(iso3) %>%
+  summarize(n = n_distinct(name)) %>%
+  arrange(desc(n))
+```
+
+```{r name_iso3, echo=FALSE}
+gapminder %>%
+  group_by(name) %>%
+  summarize(n = n_distinct(iso3)) %>%
+  arrange(desc(n))
+
+gapminder %>%
+  filter(is.na(name)) %>%
+  summarise(n = unique(iso3))
+```
+
+  Based on my analysis, the **NA** variable is the only name that corresponds with multiple **is03**
+  codes. Those codes are **CHANSIL**, **GBM**, **KOS**, and **NLD_CURACO**.
+
+3.)
+
+```{r min_max, echo=FALSE}
+gapminder %>%
+  filter(!is.na(time)) %>%
+  select(time) %>%
+  head(1)
+
+gapminder %>%
+  filter(!is.na(time)) %>%
+  select(time) %>%
+  tail(1)
+
+```
+
+  The maximum year is 2019 and the minimum yaeer is 1960.
+## CO2 Emissions
+
+1.) How many missing co2 emissions are there for each year? Analyze both missing CO2
+and co2_PC. Which years have most missing data?
+
+```{r missing, echo=FALSE}
+gapminder %>%
+  filter(is.na(co2), is.na(co2_PC), !is.na(time)) %>%
+  group_by(time) %>%
+  summarize(n = n()) %>%
+  arrange(desc(n))
+```
+
+  2017, 2018, and 2019 respectively have the most missing CO2 emissions, witch 217 each.
+  
+2.) Make a plot of total CO2 emissions over time for the U.S, China, and India. Add a few
+more countries of your choice. Explain what do you see.
+
+```{r emissions_plot_1, echo=FALSE}
+use <-gapminder %>%
+  filter(name == "United States of America" | name == "China" | name == "India" |
+         name == "Norway" | name == "Italy", !is.na(time), !is.na(co2))
+
+ggplot(data = use, 
+       mapping = aes(x = time, 
+                     y = co2, 
+                     color = name)) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Total Emissions (CO2)")
+  
+```
+
+  Based on the graph, it appears that China and India have had increasing CO2 emissions since the year
+  2000, which could reflect increased industrialization and overall economic activity in that time. In
+  contrast, the United States has slightly decreased its emissions since 2000, which could reflect
+  changing attitudes on what energy sources should be used, both for production and other means. As
+  expected, the two European countries have much lower emissions, which most probably indicates their
+  use of alternative energy sources and lack of dependence on fossil fuels.
+  
+3.) Now let’s analyze the CO2 emissions per capita (co2_PC ). Make a similar plot of the
+same countries. What does this figure suggest?
+
+```{r emissions_plot_2, echo=FALSE}
+use <-gapminder %>%
+  filter(name == "United States of America" | name == "China" | name == "India" |
+         name == "Norway" | name == "Italy", !is.na(time), !is.na(co2_PC))
+
+ggplot(data = use, 
+       mapping = aes(x = time, 
+                     y = co2_PC, 
+                     color = name)) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Total Emissions (CO2 per capita)")
+  
+```
+
+  In some ways, this graph suggests similar things as the previous, since we see some of the same
+  trends. For instance, we still see the general trend that India & China have increased emissions
+  recently while the U.S. has decreased. The main difference in this graph is that, for the European
+  countries, we can see how emissions has either grown or decreased as a proportion of their
+  population size. Because the trend lines are fairly close to the other countries in terms of CO2 per
+  capita, we can infer that total CO2 emissions are largely a function of population size.
+  
+4.) Compute average CO2 emissions per capita across the continents (assume region is the
+same as continent). Comment what do you see
+
+```{r emissions_continents, echo=FALSE}
+gapminder %>%
+  filter(!is.na(co2_PC)) %>%
+  group_by(region) %>%
+  summarize(n = mean(co2_PC))
+```
+
+  Based on the data in the table, it seems like most of the regions have fairly similar CO2 emissions
+  per capita, except for **Africa**, which has a significantly lower average value than the other
+  regions.
+  
+5.) Make a barplot where you show the previous results–average CO2 emissions per capita
+across continents in 1960 and 2016.
+
+```{r emissions_barplot, echo=FALSE}
+use <- gapminder %>%
+  filter(time == 2016 | time == 1960, !is.na(region), !is.na(co2_PC), region != "") %>%
+  group_by(region, time) %>%
+  summarize(n = mean(co2_PC), .groups = "drop")
+
+ggplot(use, aes(region, n, fill = as.factor(time))) +
+  geom_col(position = "dodge") +
+  labs(x = "Region",
+       y = "Total Emissions (CO2 per capita)") +
+  scale_fill_discrete(name = "Year")
+```
+
+6.) Which countries are the three largest, and three smallest CO2 emitters (in terms of CO2 per
+capita) in 2019 for each continent? (Assume region is continent).
+
+```{r 3_large_small, echo=FALSE}
+gapminder %>%
+  filter(!is.na(co2_PC), time == 2016) %>%
+  group_by(region, name) %>%
+  summarize(n = mean(co2_PC), .groups = "drop") %>%
+  arrange(region, n) %>%
+  group_by(region) %>%
+  top_n(-3, n)
+
+gapminder %>%
+  filter(!is.na(co2_PC), time == 2016) %>%
+  group_by(region, name) %>%
+  summarize(n = mean(co2_PC), .groups = "drop") %>%
+  arrange(region, n) %>%
+  group_by(region) %>%
+  top_n(3, n)
+```
+
