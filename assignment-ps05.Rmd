@@ -217,7 +217,7 @@ ggplot(use, aes(region, n, fill = as.factor(time))) +
 
 ```{r 3_large_small, echo=FALSE}
 gapminder %>%
-  filter(!is.na(co2_PC), time == 2016) %>%
+  filter(!is.na(co2_PC), !is.na(region), !is.na(name), time == 2016) %>%
   group_by(region, name) %>%
   summarize(n = mean(co2_PC), .groups = "drop") %>%
   arrange(region, n) %>%
@@ -225,7 +225,7 @@ gapminder %>%
   top_n(-3, n)
 
 gapminder %>%
-  filter(!is.na(co2_PC), time == 2016) %>%
+  filter(!is.na(co2_PC), !is.na(region), !is.na(name), time == 2016) %>%
   group_by(region, name) %>%
   summarize(n = mean(co2_PC), .groups = "drop") %>%
   arrange(region, n) %>%
@@ -351,7 +351,7 @@ gapminder %>%
 ```
 
   The relative rate for the United States of America in 2019, in terms of life 
-  expectancy, was 0.235.
+  expectancy, was **0.235**.
   
 **Finally**, tell us how many hours did you spend on this PS.
 
